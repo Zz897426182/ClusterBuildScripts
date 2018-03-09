@@ -5,4 +5,4 @@
 *.tmp
 ~$*.docx
 *.swp
-*.xml
+*.idea
