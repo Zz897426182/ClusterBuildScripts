@@ -103,6 +103,32 @@ function delete_namesrv_variable
 }
 
 #####################################################################
+# 函数名: delete_openblas_num_variable
+# 描述: 删除各个节点上/etc/profile中的OPENBLAS_NUM_THREADS环境变量
+# 参数: N/A
+# 返回值: N/A
+# 其他: N/A
+#####################################################################
+function delete_openblas_num_variable
+{
+	echo ""  | tee -a $LOG_FILE
+	echo "**********************************************" | tee -a $LOG_FILE
+	echo "please waitinng, 删除openblas_num环境变量........"  | tee -a $LOG_FILE
+	## 获取配置算法节点IP
+	GsFaceLib_Host=$(grep GsFaceLib_HostName ${CONF_DIR}/cluster_conf.properties|cut -d '=' -f2)
+	gsFaceLib_arr=(${GsFaceLib_Host//;/ })
+	for gsFaceLib_host in ${gsFaceLib_arr[@]}
+	do
+		# 判断是否存在export OPENBLAS_NUM_THREADS=1这一行，若存在删除
+		openblas_num_exists=$(ssh root@${gsFaceLib_host} 'grep "export OPENBLAS_NUM_THREADS=" /etc/profile')
+		if [ "${openblas_num_exists}" != "" ];then
+			ssh root@${insName} "sed -i '/export OPENBLAS_NUM_THREADS=/d' /etc/profile"
+		fi
+	done
+	echo "删除openblas_num环境变量完成........"  | tee -a $LOG_FILE
+}
+
+#####################################################################
 # 函数名: delete_gsfacelib_variable
 # 描述: 删除各个节点上/etc/profile中的gsfacelib环境变量
 # 参数: N/A
@@ -138,6 +164,7 @@ function main
 	delete_java_variable
 	delete_namesrv_variable
 	delete_gsfacelib_variable
+	delete_openblas_num_variable
 }
 
 echo ""  | tee  -a  $LOG_FILE

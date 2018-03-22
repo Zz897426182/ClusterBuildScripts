@@ -88,8 +88,9 @@ function rsync_GsFaceLib(){
 
 #####################################################################
 # 函数名: add_env
-# 描述: 在各个节点上判断/opt/profile中环境变量设置字串存在
+# 描述: 在各个节点上判断/etc/profile中环境变量设置字串存在
 #       不存在则添加追加到文件末尾：export LD_LIBRARY_PATH=/opt/GsFaceLib/face_libs
+                                    export OPENBLAS_NUM_THREADS=1
 # 参数: N/A
 # 返回值: N/A
 # 其他: N/A
@@ -110,12 +111,19 @@ function add_env(){
 	LD_LIBRARY_PATH=/opt/GsFaceLib/face_libs
 	for hostname in ${GSFACELIB_HOSTNAME_ARRY[@]};do
 		facelibshome_exists=$(ssh root@${hostname} 'grep "export LD_LIBRARY_PATH=" /etc/profile')
+		facelibopenblas_num_exists=$(ssh root@${hostname} 'grep "export OPENBLAS_NUM_THREADS=" /etc/profile')
 		# 存在"export LD_LIBRARY_PATH="这一行：则替换这一行
 		if [ "${facelibshome_exists}" != "" ];then
 			ssh root@${hostname} "sed -i 's#^export LD_LIBRARY_PATH=.*#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH#g' /etc/profile"
 		else
 			ssh root@${hostname} "echo '#LD_LIBRARY_PATH'>>/etc/profile ;echo export LD_LIBRARY_PATH=$LD_LIBRARY_PATH >> /etc/profile"
 		fi
+		# 存在"export OPENBLAS_NUM_THREADS="这一行：则替换这一行
+        if [ "${facelibopenblas_num_exists}" != "" ];then
+            ssh root@${hostname} "sed -i 's#^export OPENBLAS_NUM_THREADS=.*#export OPENBLAS_NUM_THREADS=1#g' /etc/profile"
+        else
+            ssh root@${hostname} "echo export OPENBLAS_NUM_THREADS=1 >> /etc/profile"
+        fi
 	done
 }
 #####################################################################

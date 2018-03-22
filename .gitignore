@@ -4,3 +4,5 @@
 *.zip
 *.tmp
 ~$*.docx
+*.swp
+*.idea
