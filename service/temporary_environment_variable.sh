@@ -48,4 +48,8 @@ export PATH=$PATH:$ROCKETMQ_HOME/bin
 # xcall
 export PATH=$PATH:/opt/hzgc/tool
 
+# phoenix home
+export PHOENIX_HOME=${INSTALL_HOME}/Phoenix/phoenix
+export PATH=$PATH:${PHOENIX_HOME}/bin
+
 set +x
