@@ -196,6 +196,32 @@ function create_ssl()
 }
 
 #####################################################################
+# 函数名: writeUI_file
+# 描述: 将Azkaban的UI地址写到指定文件中
+# 参数: N/A
+# 返回值: N/A
+# 其他: N/A
+#####################################################################
+function writeUI_file()
+{
+    echo ""  | tee -a $LOG_FILE
+    echo "**********************************************" | tee -a $LOG_FILE
+    echo "准备将Azkaban的UI地址写到指定文件中............"    | tee -a $LOG_FILE
+    AzkabanWebUI_Dir=$(grep WebUI_Dir ${CONF_DIR}/cluster_conf.properties|cut -d '=' -f2)
+    Install_IP=$(cat /etc/hosts|grep "$MYSQL_HOSTNAME" | awk '{print $1}')
+    Azkaban_UI="https://${Install_IP}:8443"
+    mkdir -p ${AzkabanWebUI_Dir}
+    grep -q "AzkabanUI_Address=" ${AzkabanWebUI_Dir}/WebUI_Address
+    if [ "$?" -eq "0" ]  ;then
+        sed -i "s#^AzkabanUI_Address=.*#AzkabanUI_Address=${Azkaban_UI}#g" ${AzkabanWebUI_Dir}/WebUI_Address
+    else
+        echo "##Azkaban_WebUI" >> ${AzkabanWebUI_Dir}/WebUI_Address
+        echo "AzkabanUI_Address=${Azkaban_UI}" >> ${AzkabanWebUI_Dir}/WebUI_Address
+    fi
+}
+
+
+#####################################################################
 # 函数名: main
 # 描述:  安装azkaban主函数
 # 参数: N/A
@@ -210,6 +236,7 @@ function main()
     xync_azkaban
     create_database
     create_ssl
+    writeUI_file
 }
 
 
